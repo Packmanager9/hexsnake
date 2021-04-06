@@ -1,0 +1,64 @@
+
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+  </head>
+
+  <div class="gamepage-wrapper">
+
+    <!-- Basic header. Should hold simple branding and navigation. -->
+    <header class="gamepage-header">
+      <!-- Image provided by Eucalyp Studio in Artificial Intelligence from https://www.iconfinder.com/iconsets/artificial-intelligence-6 -->
+      <!-- <img id="site-logo" src="assets/iconfinder_ArtificialIntelligence29_2890576_blackwhite.png"> -->
+      <ul class="nav-content">
+        <!-- <li class="nav-list-item"><a class="nav-link-text" href="">Home</a></li> -->
+        <li class="nav-list-item"><a class="nav-link-text" href="http://ditzbitz.com/games.html">Games</a></li>
+        <!-- <li class="nav-list-item"><a class="nav-link-text" href="https://www.linkedin.com/in/cole-ditzler-41b160133/" target="_blank">About</a></li> -->
+      </ul>
+    </header>
+
+    <!-- Container for page content. Contains and aligns instructions, game, and ads. -->
+    <div class="game-content-container">
+      
+      <!-- Left side banner. Should contain instuctions for the game. -->
+      <aside class="gamepage-left-aside">
+        <h2>Hexpiles</h2>
+        <ul>
+          <li> Click any hexgrid element to add a single grain of sand.</li> 
+          <li> Each square can have 0, 1, 2, 3, 4 or 5 grains of sand.</li> 
+          <li> 0 = white, 1 = cyan, 2 = magenta, 3 = red 4 = orange 5 = yellow.</li> 
+          <li> The pile in the center will grow and topple.</li> 
+          <button id="pause">Pause</button>
+          <br>
+          <button id="clear">clear</button>
+
+
+        </ul>
+      </aside>
+    
+      <!-- Game container. Holds the game for this page scaled to fit.  -->
+ 
+      <div class="game-container">
+        
+  <div id="dog-image-container">
+
+    <canvas  id="tutorial" width="768" height="768"></canvas>
+
+    <script src="hexdemo.js"></script>
+</div id="go">
+      </div>
+    
+      <!-- Right side banner. No content for now. Perhaps ad-space in the future. -->
+      <aside class="gamepage-right-aside">
+        <!-- Add content here later. -->
+      </aside>
+    </div>
+
+    <!-- Simple footer. Just a copyright notice. -->
+    <footer class="games-footer">
+    </footer>
+
+  </div>
+</html>
