@@ -115,6 +115,12 @@ class Hexagon{
                 if(this == rectx.selected){
                     tutorial_canvas_context.fillStyle = "orange"
                 }
+                if( this.age > 0 && this == rectx.selected){
+                    rectx.length = rectx.length-this.age
+                    if(rectx.length <=0){
+                        rectx.length = 1
+                    }
+                }
             }
             if(this == food){
     
@@ -143,7 +149,7 @@ class HexGrid{
     constructor(size) {
         this.blocks = []
         this.size = size
-        this.length = 10
+        this.length = 5
         for (let t = 0; t < tutorial_canvas.width+1; t += Math.round(size*16)) {
             this.holdblocks = []
             let y = 0
