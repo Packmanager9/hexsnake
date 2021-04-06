@@ -1,8 +1,5 @@
 const tutorial_canvas = document.getElementById("tutorial");
 const tutorial_canvas_context = tutorial_canvas.getContext('2d');
-let totalsaws = 110
-let whackout = -1
-
 let rectx = {}
 rectx.selected = {}
 const gamepadAPI = {
@@ -86,52 +83,9 @@ const gamepadAPI = {
     axesStatus: []
 };
 
-const pausebtn = document.getElementById("pause");
-const clearbtn = document.getElementById("clear");
-let pausedvec =  1
-pausebtn.onclick = flip
-function flip() {
-    pausedvec*=-1
-    if(pausedvec == -1){
-        pausebtn.innerText = "unpause"
-    }else{
-        pausebtn.innerText = "pause"
-    }
-}
-clearbtn.onclick = clear
-
-function clear() {
-    rectx.clear()
-}
 
 tutorial_canvas.style.background = "black"
 
-
-let tip = {}
-let flex = tutorial_canvas.getBoundingClientRect();
-let xs
-let ys
-
-window.addEventListener('mousedown', e => {
-    
-    flex = tutorial_canvas.getBoundingClientRect();
-    xs = e.clientX - flex.left;
-    ys = e.clientY - flex.top;
-    tip.x = xs
-    tip.y = ys
-    tip.body = tip
-
-    for (let t = 0; t < rectx.blocks.length; t++) {
-        for (let k = 0; k < rectx.blocks[t].length; k++) {
-            if (rectx.blocks[t][k].center.isPointInside(tip)) {
-                rectx.blocks[t][k].pile++
-                rectx.blocks[t][k].shakeout()
-                break
-            }
-        }
-    }
-
-});
 
 
 class Hexagon{
@@ -153,90 +107,8 @@ class Hexagon{
             this.angle += (Math.PI*2)/6
         }
     }
-    shakeout(){
-        // if(this.pile >= 6){
-        //     shakeoutyes = 1
-        //     this.pile -=6
-        //     if(this.k%2 == 0){
-        //         // console.log("working", this.t,this.k)
-        //         if(this.k > 0 && this.t > 0){
-        //             rectx.blocks[this.t-1][this.k-1].pile +=1 // check ^
-        //         }
-        //         if(this.t > 0){
-        //             rectx.blocks[this.t-1][this.k].pile +=1
-        //         } 
-        //         if(this.k > 0){
-        //             rectx.blocks[this.t][this.k-1].pile +=1
-        //         }
-        //         if(this.k < rectx.blocks.length && this.t > 0){
-        //             rectx.blocks[this.t-1][this.k+1].pile +=1
-        //         }
-        //         if(this.t < rectx.blocks.length){
-        //             rectx.blocks[this.t+1][this.k].pile +=1
-        //         }
-    
-        //         if(this.k < rectx.blocks.length){
-        //             rectx.blocks[this.t][this.k+1].pile +=1
-        //         }
-        //     }else{
-        //         // console.log("broken", this.t,this.k)
-        //         if(this.t > 0){
-        //             rectx.blocks[this.t-1][this.k].pile +=1 // !
-        //         }
-        //         // if(this.t > 0 && this.k > 0){
-        //         //     // rectx.blocks[this.t-1][this.k-1].pile +=1 // check ^< +
-        //         // } 
-        //         if(this.k < rectx.blocks.length){
-        //             rectx.blocks[this.t+1][this.k].pile +=1 // !V
-        //         }
-        //         if(this.t < rectx.blocks.length){
-        //             rectx.blocks[this.t][this.k+1].pile +=1 // !
-        //         }
-        //         if(this.t > 0){
-        //             rectx.blocks[this.t+1][this.k-1].pile +=1 // !
-        //         }
-
-        //         if(this.k > 0){
-        //             rectx.blocks[this.t][this.k-1].pile +=1 // !
-        //         }
-
-        //         if(this.t < rectx.blocks.length && this.k < rectx.blocks.length){
-        //             rectx.blocks[this.t+1][this.k+1].pile +=1 // check >^ +
-        //         }
-        //     }
-            
-             
-            
-        // }
-    }
     draw(){
-        // this.nodes = []
-        // for(let t = 0;t<6;t++){
-        //     let node = new Bosscircle(this.center.x+(this.size*(Math.cos(this.angle))), this.center.y+(this.size*(Math.sin(this.angle))), 0, "transparent")
-        //     this.nodes.push(node)
-        //     this.angle += (Math.PI*2)/6
-        // }
-        // if(this.pile == 0){
-        //     tutorial_canvas_context.fillStyle = "#FFFFFF"
             tutorial_canvas_context.fillStyle = "black"
-        // }else if(this.pile == 1){
-        //     tutorial_canvas_context.fillStyle = "#EEEEEE"
-        //     tutorial_canvas_context.fillStyle = "cyan"
-        // }else if(this.pile == 2){
-        //     tutorial_canvas_context.fillStyle = "#DDDDDD"
-        //     tutorial_canvas_context.fillStyle = "magenta"
-        // }else if(this.pile == 3){
-        //     tutorial_canvas_context.fillStyle = "#CCCCCC"
-        //     tutorial_canvas_context.fillStyle = "red"
-        // }else if(this.pile == 4){
-        //     tutorial_canvas_context.fillStyle = "#BBBBBB"
-        //     tutorial_canvas_context.fillStyle = "orange"
-        // }else if(this.pile == 5){
-        //     tutorial_canvas_context.fillStyle = "#AAAAAA"
-        //     tutorial_canvas_context.fillStyle = "yellow"
-        // }else{
-
-    
             if(this == rectx.selected || this.age > 0){
 
                 tutorial_canvas_context.fillStyle =`rgb(${255-this.age*7},${0+this.age*7},${(255/(this.age/2))})`
@@ -252,12 +124,6 @@ class Hexagon{
                 }
                 tutorial_canvas_context.fillStyle = "red"
             }
-        //     tutorial_canvas_context.fillStyle = "black"
-        // }
-        // if(this.t == 6 && this.k == 4){
-        //     tutorial_canvas_context.fillStyle = "red"
-        // }
-        // tutorial_canvas_context.fillStyle = this.color
         tutorial_canvas_context.strokeStyle = "white"
         tutorial_canvas_context.lineWidth = 1
         tutorial_canvas_context.beginPath()
@@ -328,36 +194,17 @@ class HexGrid{
         for (let t = 0; t < this.blocks.length; t++) {
             for (let k = 0; k < this.blocks[t].length; k++) {
                 this.blocks[t][k].draw()
-                // console.log(this.blocks[t][k])
             }
         }
-
-        // for(let f = 0;f< this.blocks.length;f++){
-        //     for (let t = 0; t < this.blocks.length; t++) {
-        //         for (let k = 0; k < this.blocks[t].length; k++) {
-        //             this.blocks[t][k].shakeout()
-        //         }
-        //     }
-        // }
     }
     clear(){
-        // for(let f = 0;f< this.blocks.length;f++){
-        //     for (let t = 0; t < this.blocks.length; t++) {
-        //         for (let k = 0; k < this.blocks[t].length; k++) {
-        //             this.blocks[t][k].pile = 0
-        //         }
-        //     }
-        // }
     }
     control(){
-        // this.selected.center.x++
-        // console.log(gamepadAPI)
         let projexteddot = new Bosscircle(this.selected.center.x+(gamepadAPI.axesStatus[0]*this.size*16),this.selected.center.y+(gamepadAPI.axesStatus[1]*this.size*16), 3, "red" )
         projexteddot.draw()
         for(let t = 0;t<this.selected.neighbors.length; t++){
             if(this.selected.neighbors[t].center.repelCheck(projexteddot)){
                 this.selected.age=this.length
-                // console.log(this.selected)
                 this.selected=this.selected.neighbors[t]
                 for (let t = 0; t < this.blocks.length; t++) {
                     for (let k = 0; k < this.blocks[t].length; k++) {
@@ -366,7 +213,6 @@ class HexGrid{
                         }
                     }
                 }
-
                 break
             }
         }
@@ -475,20 +321,5 @@ let counter = 0
 window.setInterval(function () {
     tutorial_canvas_context.clearRect(0, 0, tutorial_canvas.width, tutorial_canvas.height)
     rectx.draw()
-    counter++
-    if(counter%4 == 0){
-
-        // rectx.blocks[Math.floor(rectx.blocks.length*.5)][Math.floor(rectx.blocks.length*.5)].pile++
-    }
     gamepadAPI.update()
 }, 50)
-
-
-function getRandomLightColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[(Math.floor(Math.random() * 14) + 1)];
-    }
-    return color;
-}
