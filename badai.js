@@ -1,3 +1,5 @@
+let foodchange = 1
+let foodcounter = 0
 const tutorial_canvas = document.getElementById("tutorial");
 const tutorial_canvas_context = tutorial_canvas.getContext('2d');
 let rectx = {}
@@ -91,7 +93,7 @@ tutorial_canvas.style.background = "black"
 class Hexagon {
     constructor(x, y, size, color) {
         this.safe = 0
-        this.center = new Bosscircle(x, y, size, "transparent")
+        this.center = new Bosscircle(x, y, size, "blue")
         this.nodes = []
         this.angle = 0
         this.size = size
@@ -109,13 +111,13 @@ class Hexagon {
         }
     }
     draw() {
-        if(this.age >= 1 || this == rectx.selected || this == food ){
+        if (this.age >= 1 || this == rectx.selected || this == food) {
             // if(this.age == .1){
             //     this.age=-1
             // }
             tutorial_canvas_context.fillStyle = this.color
             if (this == rectx.selected || this.age > 0) {
-    
+
                 tutorial_canvas_context.fillStyle = `rgb(${255 - this.age * 4},${0 + this.age * 4},${(255 / (this.age / 2))})`
                 if (this == rectx.selected) {
                     tutorial_canvas_context.fillStyle = "orange"
@@ -128,12 +130,13 @@ class Hexagon {
                 }
             }
             if (this == food) {
-    
-                if (this == rectx.selected || this.age > 0 && this.age==Math.floor(this.age)) {
+
+                if (this == rectx.selected || this.age > 0){// && this.age == Math.floor(this.age)) {
                     rectx.length++
                     let tg = 0
-                    while(food.k*food.t == 0 || tg == 0){
+                    while (food.k * food.t == 0 || tg == 0 ) { //|| food.age != 0
                         food = rectx.blocks[Math.floor(rectx.blocks.length * Math.random())][Math.floor(rectx.blocks.length * Math.random())]
+                        foodchange = 1
                         tg = 1
                     }
                 }
@@ -150,9 +153,9 @@ class Hexagon {
             tutorial_canvas_context.fill()
             tutorial_canvas_context.stroke()
             tutorial_canvas_context.closePath()
-    
+
         }
-        }
+    }
 }
 
 class HexGrid {
@@ -219,115 +222,217 @@ class HexGrid {
     }
     clear() {
     }
-    deeplook(){
+    deeplook() {
+        this.bumper = 0
+        if (foodchange == 0) {
+            return true
+        }else{
+            foodcounter++
+            if(foodcounter > 10000){
+                foodcounter = 0
+                return true
+            }
+        }
+        let bumpcen = 0
         this.mark = 0
         this.whammy = 0
         this.stobase = this.selected
         this.thing = this.selected
+
+        let bet = this.thing.neighbors.length
+
+        for (let f = 0; f < this.thing.neighbors.length; f++) {
+            if (this.thing.neighbors[f].age > 0 || this.deep.includes(this.thing.neighbors[f]) || this.thing.neighbors[f] == this.thing) {
+                bet--
+            }
+        }
+
+        if (bet == 0) {
+            return false
+        }
         this.deep = [this.selected]
         this.deepsto = [this.stobase]
         this.angle = Math.atan2(-(this.thing.center.y - food.center.y), -(this.thing.center.x - food.center.x))
         this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
-        for(let t = 0;t<this.length;t++){
-        this.whammy = 0
-            for(let k = 0;k<this.thing.neighbors.length;k++){
-            if(!this.deep.includes(this.thing.neighbors[k])){
-                if(this.thing.neighbors[k].center.isPointInside(this.projexteddot)){
-                    if(this.thing.neighbors[k].age <= t){
-                        if(this.thing == food){
-                            return true
-                        }
+        for (let t = 0; t < this.length * 2; t++) {
+            this.whammy = 0
+            this.spoke = 0
+            for (let k = 0; k < this.thing.neighbors.length; k++) {
+                if (!this.deep.includes(this.thing.neighbors[k])) {
+                    if (this.thing.neighbors[k].center.isPointInside(this.projexteddot)) {
+                        if (this.thing.neighbors[k].age < this.deep.length-1) {
+                            if (this.thing == food) {
+                                foodchange = 0
+                                return true
+                            }
 
+                           
                             let bet = this.thing.neighbors.length
 
-                            for(let k = 0;k<this.thing.neighbors.length;k++){
-                                if(this.thing.neighbors[k].age > 0 || this.deep.includes(this.thing.neighbors[k])){
+                            for (let f = 0; f < this.thing.neighbors.length; f++) {
+                                if (this.thing.neighbors[f].age > 0 || this.deep.includes(this.thing.neighbors[f]) || this.thing.neighbors[f] == this.thing) {
                                     bet--
                                 }
                             }
-                            if(bet == 0){
-                            }else{
-                            this.deep.push(this.thing.neighbors[k])
-                            this.thing.safe = k
-                            this.thing = this.thing.neighbors[k]
-                            this.angle = Math.atan2(-(this.thing.center.y - food.center.y), -(this.thing.center.x - food.center.x))
-                            this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
-                            this.stobase = this.thing
-                            this.mark++
-                            this.whammy = 1
+
+                            if (bet == 0) {
+                                this.spoke++
+                                if(this.spoke>=this.thing.neighbors.length){
+                                    return false
+                                }
+                            }else {
+                                this.deep.push(this.thing.neighbors[k])
+                                this.thing.safe = k
+                                this.thing = this.thing.neighbors[k]
+                                this.thing.center.draw()
+                                bumpcen++
+                                this.angle = Math.atan2(-(this.thing.center.y - food.center.y), -(this.thing.center.x - food.center.x))
+                                this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
+                                // k = 0
+                                if (t < this.length) {
+                                    // if(t <= 5){
+
+                                    // if(Math.random()<.1){
+                                    //     this.angle = Math.atan2((this.thing.center.x - food.center.x), (this.thing.center.y - food.center.y))
+                                    //     this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
+                                    //     k = 0
+                                    // }
+                                    // if(Math.random()<.1){
+                                    //     this.angle = Math.atan2((this.thing.center.y - food.center.y), (this.thing.center.x - food.center.x))
+                                    //     this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
+                                    //     k = 0
+                                    // }
+                                    // if(Math.random()<.91){
+
+                                    this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos((((((Math.random() * 6)) * ((Math.PI * 2)))))) * this.size * 16), this.thing.center.y + (Math.sin((((((Math.random() * 6)) * ((Math.PI * 2)))))) * this.size * 16), .3, "red")
+                                    
+                                    if(Math.random()<.5){
+                                        this.angle = Math.atan2(-(this.thing.center.y - food.center.y), -(this.thing.center.x - food.center.x))
+                                        this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
+                                            }
+                                    k = 0
+                                    this.bumper++
+                                    if (this.bumper > 3) {
+                                        // return true
+                                    }
+
+                                    // }
+                                    // }
+                                    // if(Math.random()<.12){
+                                    //     this.angle = Math.atan2((this.thing.center.y - food.center.y), (this.thing.center.x - food.center.x))
+                                    //     this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle) * this.size * 16), this.thing.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
+
+                                    // }
+                                } else {
+                                    //  return true
+
+                                }
+                                this.stobase = this.thing
+                                this.mark++
+                                this.whammy = 1
                             }
 
 
                             break
-                        }else{
+                        } else {
                             this.angle = Math.atan2((this.thing.center.y - food.center.y), (this.thing.center.x - food.center.x))
-                            this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle+(((Math.floor(Math.random()*6)*Math.PI*2)/6))) * this.size * 16) , this.thing.center.y + (Math.sin(this.angle+(((Math.floor(Math.random()*6)*Math.PI*2)/6))) * this.size * 16), 3, "red")
+                            this.projexteddot = new Bosscircle(this.thing.center.x + (Math.cos(this.angle + ((((1 + Math.floor(Math.random() * 6)) * ((Math.PI * 2)) / 6)))) * this.size * 16), this.thing.center.y + (Math.sin(this.angle + ((((1 + Math.floor(Math.random() * 6)) * ((Math.PI * 2)) / 6)))) * this.size * 16), 3, "red")
 
                             this.mark++
                             this.whammy = 1
 
                             //maybe this area could work?
-                    // for(let n = 0;n<this.thing.neighbors.length;n++){
-                    //     let h = Math.floor(Math.random() * this.thing.neighbors.length)
-                    //         if(this.thing.neighbors[h].age < t){
-                    //             if(!this.deep.includes(this.thing.neighbors[h])){
-                    //                 this.deep.push(this.thing.neighbors[h])
-                    //                 this.thing = this.thing.neighbors[h]
-                    //                 this.stobase = this.thing
-                    //                 if(t == 0){
-                    //                     this.thing.safe = h
-                    //                 }
-                    //                 if(this.thing == food){
-                    //                     return true
-                    //                 }
-                    //                 break
-                    //             }
-                    //         }
-            // }
+                            // for(let n = 0;n<this.thing.neighbors.length;n++){
+                            //     let h = Math.floor(Math.random() * this.thing.neighbors.length)
+                            //         if(this.thing.neighbors[h].age < t){
+                            //             if(!this.deep.includes(this.thing.neighbors[h])){
+                            //                 this.deep.push(this.thing.neighbors[h])
+                            //                 this.thing = this.thing.neighbors[h]
+                            //                 this.stobase = this.thing
+                            //                 if(t == 0){
+                            //                     this.thing.safe = h
+                            //                 }
+                            //                 if(this.thing == food){
+                            //                     return true
+                            //                 }
+                            //                 break
+                            //             }
+                            //         }
+                            // }
 
 
                         }
                     }
                 }
             }
-        if(this.whammy == 0){
-            for(let t = 0;t<this.length;t++){
-                if(this.mark >= this.length+1){
-                    for(let k = 0;k<this.thing.neighbors.length*10;k++){
+            // if(this.whammy == 0){
+            for (let g = 0; g < this.length * 2; g++) {
+                if (this.mark >= this.length + 1) {
+                    for (let k = 0; k < this.thing.neighbors.length * 10; k++) {
                         let h = Math.floor(Math.random() * this.thing.neighbors.length)
-                            if(this.thing.neighbors[h].age <= t){
-                                if(!this.deep.includes(this.thing.neighbors[h])){
-                                    this.deep.push(this.thing.neighbors[h])
-                                    this.thing = this.thing.neighbors[h]
-                                    this.stobase = this.thing
-                                    if(t == 0){
-                                        this.thing.safe = h
-                                    }
-                                    if(this.thing == food){
-                                        return true
-                                    }
-                                    break
+                        if (this.thing.neighbors[h].age < this.deep.length-1) {
+                            if (!this.deep.includes(this.thing.neighbors[h])) {
+                                if (this.thing == food) {
+                                    foodchange = 0
+                                    return true
                                 }
+
+                                let bet = this.thing.neighbors.length
+
+                                for (let f = 0; f < this.thing.neighbors.length; f++) {
+                                    if (this.thing.neighbors[f].age > 0 || this.deep.includes(this.thing.neighbors[f]) || this.thing.neighbors[f] == this.thing) {
+                                        bet--
+                                    }
+                                }
+
+                                if (bet == 0) {
+                                    return false
+                                }
+                                // if (g == 0) {
+                                    this.thing.safe = h
+                                // }
+                                this.deep.push(this.thing.neighbors[h])
+                                this.thing = this.thing.neighbors[h]
+                                this.stobase = this.thing
+                                this.thing.center.draw()
+                                bumpcen++
+
+                                break
                             }
+                        }
                     }
                 }
             }
+            // }
+
         }
-    
-        }
+
+        this.deep.push(this.thing)
         let wet = this.thing.neighbors.length
 
-        for(let k = 0;k<this.thing.neighbors.length;k++){
-            if(this.thing.neighbors[k].age > 0 ){
+        if (this.deep.length > this.length) {
+            // return true
+        }
+        if (bumpcen > this.length) {
+            // return true
+        }
+        for (let k = 0; k < this.thing.neighbors.length; k++) {
+            if (this.thing.neighbors[k].age > 0 || this.thing.neighbors[k] == this.thing) {
                 wet--
             }
         }
-        if(wet == 0){
+        if (wet == 0) {
             // if(!this.deeplook()){
-                return false
+            return false
             // }
         }
-        return true
+        // return true
+        if (this.thing == food) {
+            foodchange = 0
+            return true
+        }
+
+        return false
     }
 
     // predict(thing){
@@ -410,40 +515,41 @@ class HexGrid {
 
 
     steer() {
+        // foodcounter = 0
         this.selectedsto = this.selected
         this.angle = Math.atan2(-(this.selected.center.y - food.center.y), -(this.selected.center.x - food.center.x))
         this.projexteddot = new Bosscircle(this.selected.center.x + (Math.cos(this.angle) * this.size * 16), this.selected.center.y + (Math.sin(this.angle) * this.size * 16), 3, "red")
-        
+
         for (let t = 0; t < this.selected.neighbors.length; t++) {
             if (this.selected.neighbors[t].center.repelCheck(this.projexteddot)) {
                 if (this.selected.neighbors[t].age <= 0) {
-                    if(this.deeplook()){
-                    this.selected.age = this.length
-                    this.runx = 0
+                    if ((this.deeplook() || foodchange == 0 ) || (this.selected == food)) {
+                        this.selected.age = this.length
+                        this.runx = 0
 
-                    let bet = this.thing.neighbors.length
+                        let bet = this.thing.neighbors.length
 
-                    for(let k = 0;k<this.thing.neighbors.length;k++){
-                        if(this.thing.neighbors[k].age > 0){
-                            bet--
-                        }
-                    }
-                    if(bet == 0){
-                    }else{
-                        this.selected = this.selected.neighbors[this.selected.safe]
-                        for (let n = 0; n < this.blocks.length; n++) {
-                            for (let k = 0; k < this.blocks[n].length; k++) {
-                                if (this.blocks[n][k].age > 0) {
-                                    this.blocks[n][k].age--
-                                }
+                        for (let k = 0; k < this.thing.neighbors.length; k++) {
+                            if (this.thing.neighbors[k].age > 0) {
+                                bet--
                             }
                         }
+                        if (bet == 0) {
+                        } else {
+                            this.selected = this.selected.neighbors[this.selected.safe]
+                            for (let n = 0; n < this.blocks.length; n++) {
+                                for (let k = 0; k < this.blocks[n].length; k++) {
+                                    if (this.blocks[n][k].age > 0) {
+                                        this.blocks[n][k].age--
+                                    }
+                                }
+                            }
+                            break
+                        }
+                    } else {
                         break
                     }
-                    }else{
-                        break
-                    }
-                    
+
                 }
                 //  else {
                 //     let num = 1.1
@@ -456,29 +562,29 @@ class HexGrid {
             }
         }
         if (this.selected == this.selectedsto) {
-            for (let t = 0; t < this.selected.neighbors.length*10; t++) {
+            for (let t = 0; t < this.selected.neighbors.length * 10; t++) {
                 let k = Math.floor(Math.random() * this.selected.neighbors.length)
-                if(this.deeplook()){
-                if (this.selected.neighbors[this.selected.safe].age <= 0) {
-                    this.runx = 0
+                if ((this.deeplook() || foodchange == 0)  ) {
+                    if (this.selected.neighbors[this.selected.safe].age <= 0) {
+                        this.runx = 0
                         this.selected.age = this.length
-                    this.selected = this.selected.neighbors[this.selected.safe]
-                    for (let n = 0; n < this.blocks.length; n++) {
-                        for (let g = 0; g < this.blocks[n].length; g++) {
-                            if (this.blocks[n][g].age > 0) {
-                                this.blocks[n][g].age--
+                        this.selected = this.selected.neighbors[this.selected.safe]
+                        for (let n = 0; n < this.blocks.length; n++) {
+                            for (let g = 0; g < this.blocks[n].length; g++) {
+                                if (this.blocks[n][g].age > 0) {
+                                    this.blocks[n][g].age--
+                                }
                             }
                         }
+                        break
                     }
-                    break
-                }
                 }
             }
         }
 
         if (this.selected == this.selectedsto) {
-            if(this.runs == 0){
-                this.runs =1
+            if (this.runs == 0) {
+                this.runs = 1
                 this.steer()
             }
             for (let n = 0; n < this.blocks.length; n++) {
@@ -611,14 +717,22 @@ class Bosscircle {
 }
 
 let food = {}
-rectx = new HexGrid(.4)
+rectx = new HexGrid(2)
 food = rectx.blocks[Math.floor(rectx.blocks.length * Math.random())][Math.floor(rectx.blocks.length * Math.random())]
+
+let counterx = 0
 
 let shakeoutyes = 0
 let counter = 0
 window.setInterval(function () {
+    counterx++
     tutorial_canvas_context.clearRect(0, 0, tutorial_canvas.width, tutorial_canvas.height)
     gamepadAPI.update()
     rectx.draw()
     // rectx.biglink.draw()
-}, 10)
+    // if (Math.random() < .01) {
+    if(counterx%rectx.length <= 1 || Math.random()<.001){
+        foodchange = 1
+        counterx = 1
+    }
+}, 1)
